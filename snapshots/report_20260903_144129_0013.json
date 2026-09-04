@@ -1,0 +1,109 @@
+{
+  "timestamp": "2026-09-03T14:41:29.834830",
+  "snapshot_index": 13,
+  "body_detected": true,
+  "keypoints": {
+    "Nose": {
+      "id": 0,
+      "x": 0.3772,
+      "y": 0.4093,
+      "confidence": 0.9923
+    },
+    "L_Eye": {
+      "id": 1,
+      "x": 0.3978,
+      "y": 0.3599,
+      "confidence": 0.9863
+    },
+    "R_Eye": {
+      "id": 2,
+      "x": 0.3542,
+      "y": 0.3753,
+      "confidence": 0.9704
+    },
+    "L_Ear": {
+      "id": 3,
+      "x": 0.4407,
+      "y": 0.3596,
+      "confidence": 0.9059
+    },
+    "R_Ear": {
+      "id": 4,
+      "x": 0.3365,
+      "y": 0.3962,
+      "confidence": 0.5749
+    },
+    "L_Shoulder": {
+      "id": 5,
+      "x": 0.5081,
+      "y": 0.5653,
+      "confidence": 0.9812
+    },
+    "R_Shoulder": {
+      "id": 6,
+      "x": 0.3303,
+      "y": 0.5955,
+      "confidence": 0.9748
+    },
+    "L_Elbow": {
+      "id": 7,
+      "x": 0.5854,
+      "y": 0.8494,
+      "confidence": 0.8632
+    },
+    "R_Elbow": {
+      "id": 8,
+      "x": 0.2952,
+      "y": 0.8496,
+      "confidence": 0.8217
+    },
+    "L_Wrist": {
+      "id": 9,
+      "x": 0.6126,
+      "y": 0.9956,
+      "confidence": 0.7594
+    },
+    "R_Wrist": {
+      "id": 10,
+      "x": 0.2236,
+      "y": 0.9892,
+      "confidence": 0.6918
+    },
+    "L_Hip": {
+      "id": 11,
+      "x": 0.4969,
+      "y": 0.9972,
+      "confidence": 0.3778
+    },
+    "R_Hip": {
+      "id": 12,
+      "x": 0.3824,
+      "y": 1.0,
+      "confidence": 0.3669
+    },
+    "L_Knee": {
+      "id": 13,
+      "x": 0.5038,
+      "y": 0.9417,
+      "confidence": 0.0284
+    },
+    "R_Knee": {
+      "id": 14,
+      "x": 0.3518,
+      "y": 0.9169,
+      "confidence": 0.0269
+    },
+    "L_Ankle": {
+      "id": 15,
+      "x": 0.5606,
+      "y": 0.9764,
+      "confidence": 0.0069
+    },
+    "R_Ankle": {
+      "id": 16,
+      "x": 0.4229,
+      "y": 0.9167,
+      "confidence": 0.007
+    }
+  }
+}

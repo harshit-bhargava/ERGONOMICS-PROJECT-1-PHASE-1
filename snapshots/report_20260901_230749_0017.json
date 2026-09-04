@@ -1,0 +1,153 @@
+{
+  "timestamp": "2026-09-01T23:07:49.385890",
+  "snapshot_index": 17,
+  "keypoints": {
+    "NOSE": {
+      "x": 0.549,
+      "y": 0.3662,
+      "z": 0.0,
+      "visibility": 0.9857
+    },
+    "LEFT_EYE": {
+      "x": 0.581,
+      "y": 0.3018,
+      "z": 0.0,
+      "visibility": 0.9822
+    },
+    "RIGHT_EYE": {
+      "x": 0.5134,
+      "y": 0.3004,
+      "z": 0.0,
+      "visibility": 0.9758
+    },
+    "LEFT_EAR": {
+      "x": 0.6202,
+      "y": 0.3302,
+      "z": 0.0,
+      "visibility": 0.9062
+    },
+    "RIGHT_EAR": {
+      "x": 0.4611,
+      "y": 0.3314,
+      "z": 0.0,
+      "visibility": 0.8376
+    },
+    "LEFT_SHOULDER": {
+      "x": 0.7286,
+      "y": 0.6854,
+      "z": 0.0,
+      "visibility": 0.9675
+    },
+    "RIGHT_SHOULDER": {
+      "x": 0.3678,
+      "y": 0.7148,
+      "z": 0.0,
+      "visibility": 0.9584
+    },
+    "LEFT_ELBOW": {
+      "x": 0.8137,
+      "y": 1.0,
+      "z": 0.0,
+      "visibility": 0.1752
+    },
+    "RIGHT_ELBOW": {
+      "x": 0.3114,
+      "y": 1.0,
+      "z": 0.0,
+      "visibility": 0.1172
+    },
+    "LEFT_WRIST": {
+      "x": 0.6917,
+      "y": 0.9885,
+      "z": 0.0,
+      "visibility": 0.1115
+    },
+    "RIGHT_WRIST": {
+      "x": 0.3667,
+      "y": 1.0,
+      "z": 0.0,
+      "visibility": 0.0817
+    },
+    "LEFT_HIP": {
+      "x": 0.672,
+      "y": 1.0,
+      "z": 0.0,
+      "visibility": 0.014
+    },
+    "RIGHT_HIP": {
+      "x": 0.4819,
+      "y": 1.0,
+      "z": 0.0,
+      "visibility": 0.0123
+    },
+    "LEFT_KNEE": {
+      "x": 0.6201,
+      "y": 0.9421,
+      "z": 0.0,
+      "visibility": 0.0039
+    },
+    "RIGHT_KNEE": {
+      "x": 0.5043,
+      "y": 0.8332,
+      "z": 0.0,
+      "visibility": 0.0033
+    },
+    "LEFT_ANKLE": {
+      "x": 0.5646,
+      "y": 0.997,
+      "z": 0.0,
+      "visibility": 0.003
+    },
+    "RIGHT_ANKLE": {
+      "x": 0.7036,
+      "y": 0.8157,
+      "z": 0.0,
+      "visibility": 0.003
+    },
+    "LEFT_INDEX": {
+      "x": 0.6917,
+      "y": 1.0085,
+      "z": 0.0,
+      "visibility": 0.1004
+    },
+    "RIGHT_INDEX": {
+      "x": 0.3667,
+      "y": 1.02,
+      "z": 0.0,
+      "visibility": 0.0735
+    }
+  },
+  "joint_angles": {},
+  "risk_flags": {},
+  "overall_risk": "LOW",
+  "scorer_results": {
+    "RULA": {
+      "score": 1,
+      "risk_level": "LOW",
+      "body_part_scores": {
+        "upper_arm": 2,
+        "lower_arm": 1,
+        "wrist": 1,
+        "neck": 1,
+        "trunk": 1,
+        "legs": 1
+      },
+      "recommendations": [
+        "Posture is within acceptable boundaries."
+      ]
+    },
+    "REBA": {
+      "score": 2,
+      "risk_level": "LOW",
+      "body_part_scores": {
+        "group_a": 2,
+        "group_b": 1,
+        "activity": 0
+      }
+    },
+    "OCRA": {
+      "score": 5,
+      "risk_level": "VERY_LOW"
+    }
+  }
+}
