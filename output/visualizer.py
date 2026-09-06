@@ -1,4 +1,4 @@
-"""Visualizer for skeletal joints, connections, and capture HUD."""
+"""Visualizer for skeletal joints, clean connections, and capture HUD."""
 
 from typing import Dict
 import cv2
@@ -7,13 +7,14 @@ import numpy as np
 from pose.keypoint_schema import KeypointData
 import config
 
-# Skeletal link pairs between joint IDs
+# Skeletal link pairs: no eyes or ears; head connects directly Nose -> Neck -> Shoulders
 BODY_CONNECTIONS = [
-    (0, 1), (0, 2), (1, 3), (2, 4),           # Facial features
-    (5, 6),                                   # Shoulder to shoulder
+    (0, 17),                                  # Head / Cervical spine: Nose to Neck
+    (17, 5), (17, 6),                         # Neck to Left & Right Shoulders
+    (5, 6),                                   # Shoulder span
     (5, 7), (7, 9),                           # Left arm
     (6, 8), (8, 10),                          # Right arm
-    (5, 11), (6, 12), (11, 12),               # Torso
+    (5, 11), (6, 12), (11, 12),               # Torso / Spine to Hips
     (11, 13), (13, 15),                       # Left leg
     (12, 14), (14, 16),                       # Right leg
 ]
@@ -38,19 +39,24 @@ class SkeletonVisualizer:
 
         # 2. Draw numbered landmark circles
         for idx, kp in keypoints.items():
+            # Enforce exclusion of facial peripherals
+            if idx in (1, 2, 3, 4):
+                continue
+
             if kp.visibility > 0.35:
                 cx, cy = to_px(kp)
-                cv2.circle(frame, (cx, cy), 5, config.COLOR_ORANGE, -1, cv2.LINE_AA)
-                cv2.circle(frame, (cx, cy), 6, config.COLOR_BLACK, 1, cv2.LINE_AA)
+                joint_color = config.COLOR_GREEN if idx == 17 else config.COLOR_ORANGE
 
-                # Point label (e.g. 5: L_Shoulder)
+                cv2.circle(frame, (cx, cy), 6, joint_color, -1, cv2.LINE_AA)
+                cv2.circle(frame, (cx, cy), 7, config.COLOR_BLACK, 1, cv2.LINE_AA)
+
                 label = f"{idx}:{kp.name}"
                 cv2.putText(
                     frame,
                     label,
                     (cx + 8, cy - 4),
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.38,
+                    0.4,
                     config.COLOR_WHITE,
                     1,
                     cv2.LINE_AA,
@@ -63,10 +69,10 @@ class SkeletonVisualizer:
         h, w, _ = frame.shape
 
         # Detection Status Badge
-        status_text = "BODY DETECTED" if is_tracked else "SEARCHING FOR PERSON..."
+        status_text = "BODY & NECK DETECTED" if is_tracked else "SEARCHING FOR PERSON..."
         status_color = config.COLOR_GREEN if is_tracked else (0, 0, 255)
-        cv2.rectangle(frame, (20, 20), (320, 60), config.COLOR_BLACK, -1)
-        cv2.rectangle(frame, (20, 20), (320, 60), status_color, 1)
+        cv2.rectangle(frame, (20, 20), (360, 60), config.COLOR_BLACK, -1)
+        cv2.rectangle(frame, (20, 20), (360, 60), status_color, 1)
         cv2.putText(frame, status_text, (30, 48), cv2.FONT_HERSHEY_SIMPLEX, 0.55, status_color, 1, cv2.LINE_AA)
 
         # Countdown Timer
