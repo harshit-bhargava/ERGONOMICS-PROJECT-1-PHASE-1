@@ -1,25 +1,29 @@
-"""Configuration settings for hand anthropometry capture and landmark measurement."""
+"""Configuration settings for YOLOv8 skeletal tracking and ergonomic risk assessment."""
 
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Union
 
-# Camera Capture Settings
-CAMERA_INDEX: int = 0
+# Camera & Video Stream Settings
+CAMERA_INDEX: Union[int, str] = 0  # Use 0 for webcam, or "video.mp4" for recorded task footage
 CAMERA_FRAME_WIDTH: int = 1280
 CAMERA_FRAME_HEIGHT: int = 720
+WINDOW_TITLE: str = "Real-Time Ergonomic Pose & Joint Angle System"
+
+# Snapshot & Capture Settings
 SNAPSHOT_INTERVAL_SECONDS: float = 6.0
+SNAPSHOT_INTERVAL_SEC: float = SNAPSHOT_INTERVAL_SECONDS  # Backward compatibility alias
 FLASH_BANNER_DURATION_SECONDS: float = 1.0
 
 # Storage Directories
 BASE_OUTPUT_DIR: Path = Path("snapshots")
 BASE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Detection & Visual Settings
-HAND_DETECTION_CONFIDENCE: float = 0.6
-HAND_TRACKING_CONFIDENCE: float = 0.5
-MAX_NUM_HANDS: int = 2
+# Pose Model & Confidence Thresholds
+POSE_MODEL_PATH: str = "yolov8n-pose.pt"
+POSE_DETECTION_CONFIDENCE: float = 0.25
+KEYPOINT_VISIBILITY_THRESHOLD: float = 0.35
 
-# Visual Colors (BGR)
+# Visual Colors (BGR Format for OpenCV)
 COLOR_CYAN: Tuple[int, int, int] = (255, 255, 0)
 COLOR_BLUE_ACCENT: Tuple[int, int, int] = (255, 140, 0)
 COLOR_ORANGE: Tuple[int, int, int] = (0, 140, 255)
@@ -28,8 +32,9 @@ COLOR_RED: Tuple[int, int, int] = (40, 40, 230)
 COLOR_WHITE: Tuple[int, int, int] = (255, 255, 255)
 COLOR_BLACK: Tuple[int, int, int] = (0, 0, 0)
 
-# Overlay Parameters
-POINT_RADIUS: int = 3
-POINT_THICKNESS: int = -1
-FONT_SCALE_POINT: float = 0.32
-FONT_SCALE_HUD: float = 0.65
+# Overlay & Font Parameters
+POINT_RADIUS: int = 6
+LINE_THICKNESS: int = 2
+FONT_SCALE_LABEL: float = 0.38
+FONT_SCALE_ANGLE: float = 0.45
+FONT_SCALE_HUD: float = 0.60

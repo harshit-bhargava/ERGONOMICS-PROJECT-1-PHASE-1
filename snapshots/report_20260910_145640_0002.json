@@ -1,0 +1,95 @@
+{
+  "timestamp": "2026-09-10T14:56:40.326492",
+  "snapshot_index": 2,
+  "body_detected": true,
+  "joint_angles": {
+    "left_elbow_flexion_deg": 33.7,
+    "right_elbow_flexion_deg": 33.4
+  },
+  "keypoints": {
+    "Nose": {
+      "id": 0,
+      "x": 0.4859,
+      "y": 0.0952,
+      "confidence": 0.997
+    },
+    "L_Shoulder": {
+      "id": 5,
+      "x": 0.7195,
+      "y": 0.4749,
+      "confidence": 0.9913
+    },
+    "R_Shoulder": {
+      "id": 6,
+      "x": 0.3009,
+      "y": 0.5069,
+      "confidence": 0.9947
+    },
+    "L_Elbow": {
+      "id": 7,
+      "x": 0.9148,
+      "y": 0.7425,
+      "confidence": 0.7653
+    },
+    "R_Elbow": {
+      "id": 8,
+      "x": 0.1425,
+      "y": 0.7869,
+      "confidence": 0.8748
+    },
+    "L_Wrist": {
+      "id": 9,
+      "x": 0.9038,
+      "y": 0.48,
+      "confidence": 0.7387
+    },
+    "R_Wrist": {
+      "id": 10,
+      "x": 0.1195,
+      "y": 0.4492,
+      "confidence": 0.8508
+    },
+    "L_Hip": {
+      "id": 11,
+      "x": 0.6791,
+      "y": 1.0,
+      "confidence": 0.1312
+    },
+    "R_Hip": {
+      "id": 12,
+      "x": 0.4299,
+      "y": 1.0,
+      "confidence": 0.1741
+    },
+    "L_Knee": {
+      "id": 13,
+      "x": 0.71,
+      "y": 0.8432,
+      "confidence": 0.0039
+    },
+    "R_Knee": {
+      "id": 14,
+      "x": 0.4165,
+      "y": 0.7771,
+      "confidence": 0.0058
+    },
+    "L_Ankle": {
+      "id": 15,
+      "x": 0.6883,
+      "y": 0.8269,
+      "confidence": 0.0005
+    },
+    "R_Ankle": {
+      "id": 16,
+      "x": 0.5553,
+      "y": 0.6979,
+      "confidence": 0.0007
+    },
+    "Neck": {
+      "id": 17,
+      "x": 0.5102,
+      "y": 0.4909,
+      "confidence": 0.993
+    }
+  }
+}
