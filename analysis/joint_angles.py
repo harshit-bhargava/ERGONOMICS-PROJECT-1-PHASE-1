@@ -1,77 +1,173 @@
-"""Vector mathematics for calculating ergonomic joint angles from body keypoints."""
+"""2D posture measurements from normalized pose and hand landmarks.
+
+Angles are image-plane estimates. Use a side view for forward/backward
+posture measurements and a front view for left/right deviation.
+"""
 
 from typing import Any, Dict, Optional, Tuple
-import numpy as np
+import math
 
 
-def calculate_3point_angle(
-    pt_a: Tuple[float, float],
-    pt_b: Tuple[float, float],
-    pt_c: Tuple[float, float],
-) -> float:
-    """Calculate the planar angle ∠ABC at vertex B in degrees."""
-    vec_ba = np.array([pt_a[0] - pt_b[0], pt_a[1] - pt_b[1]], dtype=np.float64)
-    vec_bc = np.array([pt_c[0] - pt_b[0], pt_c[1] - pt_b[1]], dtype=np.float64)
+Point = Tuple[float, float]
 
-    norm_ba = np.linalg.norm(vec_ba)
-    norm_bc = np.linalg.norm(vec_bc)
 
-    if norm_ba < 1e-6 or norm_bc < 1e-6:
+def calculate_3point_angle(a: Point, b: Point, c: Point) -> float:
+    """Return the unsigned interior angle ABC in degrees."""
+    bax = a[0] - b[0]
+    bay = a[1] - b[1]
+    bcx = c[0] - b[0]
+    bcy = c[1] - b[1]
+
+    len_ba = math.hypot(bax, bay)
+    len_bc = math.hypot(bcx, bcy)
+
+    if len_ba < 1e-8 or len_bc < 1e-8:
         return 0.0
 
-    cosine_angle = np.dot(vec_ba, vec_bc) / (norm_ba * norm_bc)
-    cosine_angle = np.clip(cosine_angle, -1.0, 1.0)
-    return float(np.degrees(np.arccos(cosine_angle)))
+    cosine = (bax * bcx + bay * bcy) / (len_ba * len_bc)
+    cosine = max(-1.0, min(1.0, cosine))
+    return math.degrees(math.acos(cosine))
 
 
-def compute_all_joint_angles(keypoints: Dict[int, Any]) -> Dict[str, float]:
-    """Calculate critical ergonomic joint angles with desk/webcam fallbacks."""
-    angles: Dict[str, float] = {}
+def _signed_angle_between(a: Point, b: Point) -> float:
+    """Signed angle from vector a to vector b; positive is counterclockwise."""
+    ax, ay = a[0], -a[1]  # Convert image y-down coordinates to y-up.
+    bx, by = b[0], -b[1]
 
-    def get_pt(idx: int) -> Optional[Tuple[float, float]]:
-        if idx in keypoints and keypoints[idx].visibility > 0.30:
-            return (keypoints[idx].x, keypoints[idx].y)
+    if math.hypot(ax, ay) < 1e-8 or math.hypot(bx, by) < 1e-8:
+        return 0.0
+
+    cross = ax * by - ay * bx
+    dot = ax * bx + ay * by
+    return math.degrees(math.atan2(cross, dot))
+
+
+def _get_point(keypoints: Dict[int, Any], idx: int) -> Optional[Point]:
+    kp = keypoints.get(idx)
+    if kp is None or getattr(kp, "visibility", 0.0) < 0.50:
         return None
+    return float(kp.x), float(kp.y)
 
-    nose = get_pt(0)
-    neck = get_pt(17)
-    l_sho, r_sho = get_pt(5), get_pt(6)
-    l_elb, r_elb = get_pt(7), get_pt(8)
-    l_wri, r_wri = get_pt(9), get_pt(10)
-    l_hip, r_hip = get_pt(11), get_pt(12)
-    l_kne, r_kne = get_pt(13), get_pt(14)
-    l_ank, r_ank = get_pt(15), get_pt(16)
 
-    # 1. Elbow Flexion (Shoulder -> Elbow -> Wrist)
-    if l_sho and l_elb and l_wri:
-        angles["l_elbow"] = round(calculate_3point_angle(l_sho, l_elb, l_wri), 1)
-    if r_sho and r_elb and r_wri:
-        angles["r_elbow"] = round(calculate_3point_angle(r_sho, r_elb, r_wri), 1)
+def _midpoint(a: Optional[Point], b: Optional[Point]) -> Optional[Point]:
+    if a is None and b is None:
+        return None
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return (0.5 * (a[0] + b[0]), 0.5 * (a[1] + b[1]))
 
-    # 2. Shoulder / Upper Arm Elevation (Hip -> Shoulder -> Elbow)
-    # Fallback to vertical downward axis if hips are below camera frame
-    if l_sho and l_elb:
-        ref_down = l_hip if l_hip else (l_sho[0], l_sho[1] + 0.5)
-        angles["l_shoulder"] = round(calculate_3point_angle(ref_down, l_sho, l_elb), 1)
 
-    if r_sho and r_elb:
-        ref_down = r_hip if r_hip else (r_sho[0], r_sho[1] + 0.5)
-        angles["r_shoulder"] = round(calculate_3point_angle(ref_down, r_sho, r_elb), 1)
+def _add_angle(result: Dict[str, float], name: str, value: float) -> None:
+    result[name] = round(value, 1)
 
-    # 3. Neck Flexion (Nose -> Neck -> Trunk Base)
-    # Works even if hips are completely hidden by desk
-    if nose and neck:
-        trunk_base = (
-            l_hip if l_hip else (r_hip if r_hip else (neck[0], neck[1] + 0.5))
+
+def compute_all_joint_angles(
+    keypoints: Dict[int, Any],
+    hand_keypoints: Optional[Dict[str, Point]] = None,
+) -> Dict[str, float]:
+    """Calculate available 2D posture measurements.
+
+    Keypoint IDs follow the COCO YOLO pose order:
+    nose 0, ears 3/4, shoulders 5/6, elbows 7/8, wrists 9/10,
+    hips 11/12, knees 13/14, ankles 15/16.
+    """
+    result: Dict[str, float] = {}
+
+    nose = _get_point(keypoints, 0)
+    left_ear = _get_point(keypoints, 3)
+    right_ear = _get_point(keypoints, 4)
+
+    left_shoulder = _get_point(keypoints, 5)
+    right_shoulder = _get_point(keypoints, 6)
+    left_elbow = _get_point(keypoints, 7)
+    right_elbow = _get_point(keypoints, 8)
+    left_wrist = _get_point(keypoints, 9)
+    right_wrist = _get_point(keypoints, 10)
+    left_hip = _get_point(keypoints, 11)
+    right_hip = _get_point(keypoints, 12)
+    left_knee = _get_point(keypoints, 13)
+    right_knee = _get_point(keypoints, 14)
+    left_ankle = _get_point(keypoints, 15)
+    right_ankle = _get_point(keypoints, 16)
+
+    shoulder_mid = _midpoint(left_shoulder, right_shoulder)
+    hip_mid = _midpoint(left_hip, right_hip)
+    ear_mid = _midpoint(left_ear, right_ear)
+
+    # Trunk inclination relative to the image's vertical axis.
+    # This works best when the camera is level and the worker is side-on.
+    if shoulder_mid is not None and hip_mid is not None:
+        trunk_up = (
+            shoulder_mid[0] - hip_mid[0],
+            shoulder_mid[1] - hip_mid[1],
         )
-        raw_angle = calculate_3point_angle(nose, neck, trunk_base)
-        # Cervical deviation: 0° is straight vertical, >20° is forward bend
-        angles["neck"] = round(abs(180.0 - raw_angle), 1)
+        _add_angle(
+            result,
+            "trunk_inclination_from_vertical_deg",
+            math.degrees(math.atan2(trunk_up[0], -trunk_up[1])),
+        )
 
-    # 4. Knee Bend (Hip -> Knee -> Ankle)
-    if l_hip and l_kne and l_ank:
-        angles["l_knee"] = round(calculate_3point_angle(l_hip, l_kne, l_ank), 1)
-    if r_hip and r_kne and r_ank:
-        angles["r_knee"] = round(calculate_3point_angle(r_hip, r_kne, r_ank), 1)
+    # A head orientation proxy, not a direct neck-joint angle.
+    # The nose-to-ear direction is compared with the trunk direction.
+    if nose is not None and ear_mid is not None and shoulder_mid is not None and hip_mid is not None:
+        head_forward = (nose[0] - ear_mid[0], nose[1] - ear_mid[1])
+        trunk_up = (shoulder_mid[0] - hip_mid[0], shoulder_mid[1] - hip_mid[1])
+        _add_angle(
+            result,
+            "head_to_trunk_relative_deg",
+            _signed_angle_between(trunk_up, head_forward),
+        )
 
-    return angles
+    # Upper-arm angle relative to the shoulder-to-hip trunk line.
+    # Sign depends on camera side and image orientation; retain it for review.
+    for side, shoulder, elbow, hip in (
+        ("l", left_shoulder, left_elbow, left_hip),
+        ("r", right_shoulder, right_elbow, right_hip),
+    ):
+        if shoulder is not None and elbow is not None and hip is not None:
+            trunk_down = (hip[0] - shoulder[0], hip[1] - shoulder[1])
+            upper_arm = (elbow[0] - shoulder[0], elbow[1] - shoulder[1])
+            _add_angle(
+                result,
+                f"{side}_upper_arm_relative_to_trunk_deg",
+                _signed_angle_between(trunk_down, upper_arm),
+            )
+
+        # Elbow interior angle and flexion angle are both useful:
+        # flexion is 180 degrees minus the interior angle.
+        wrist = left_wrist if side == "l" else right_wrist
+        if shoulder is not None and elbow is not None and wrist is not None:
+            interior = calculate_3point_angle(shoulder, elbow, wrist)
+            _add_angle(result, f"{side}_elbow_interior_deg", interior)
+            _add_angle(result, f"{side}_elbow_flexion_deg", 180.0 - interior)
+
+        # Wrist deviation from a straight forearm-to-hand line.
+        if hand_keypoints and elbow is not None and wrist is not None:
+            mcp = hand_keypoints.get(f"{side}_finger_mcp")
+            if mcp is not None:
+                interior = calculate_3point_angle(elbow, wrist, mcp)
+                _add_angle(result, f"{side}_wrist_deviation_deg", 180.0 - interior)
+
+    # Hip and knee interior angles.
+    for side, hip, knee, ankle in (
+        ("l", left_hip, left_knee, left_ankle),
+        ("r", right_hip, right_knee, right_ankle),
+    ):
+        if hip is not None and knee is not None and ankle is not None:
+            _add_angle(
+                result,
+                f"{side}_knee_interior_deg",
+                calculate_3point_angle(hip, knee, ankle),
+            )
+
+        shoulder = left_shoulder if side == "l" else right_shoulder
+        if shoulder is not None and hip is not None and knee is not None:
+            _add_angle(
+                result,
+                f"{side}_hip_interior_deg",
+                calculate_3point_angle(shoulder, hip, knee),
+            )
+
+    return result

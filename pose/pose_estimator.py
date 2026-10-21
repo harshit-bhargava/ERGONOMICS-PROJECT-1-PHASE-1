@@ -16,21 +16,23 @@ class YOLOSkeletonEstimator:
         self.model = YOLO(model_path)
         # 1, 2 (Eyes) and 3, 4 (Ears) completely removed; 17 added as Neck
         self.keypoint_names = {
-            0: "Nose",
-            5: "L_Shoulder",
-            6: "R_Shoulder",
-            7: "L_Elbow",
-            8: "R_Elbow",
-            9: "L_Wrist",
-            10: "R_Wrist",
-            11: "L_Hip",
-            12: "R_Hip",
-            13: "L_Knee",
-            14: "R_Knee",
-            15: "L_Ankle",
-            16: "R_Ankle",
-            17: "Neck",
-        }
+        0: "Nose",
+        3: "L_Ear",
+        4: "R_Ear",
+        5: "L_Shoulder",
+        6: "R_Shoulder",
+        7: "L_Elbow",
+        8: "R_Elbow",
+        9: "L_Wrist",
+        10: "R_Wrist",
+        11: "L_Hip",
+        12: "R_Hip",
+        13: "L_Knee",
+        14: "R_Knee",
+        15: "L_Ankle",
+        16: "R_Ankle",
+    17: "Neck",
+}
 
     def estimate(self, frame_bgr: np.ndarray) -> Optional[Dict[int, KeypointData]]:
         """Run pose inference and construct the ergonomic skeletal dictionary."""
@@ -53,7 +55,9 @@ class YOLOSkeletonEstimator:
 
         # 1. Populate body keypoints, skipping eyes (1, 2) and ears (3, 4)
         for idx in range(len(coords)):
-            if idx in (1, 2, 3, 4):
+            # Keep ears (3, 4) for head-orientation measurements.
+            # Skip only the eyes (1, 2).
+            if idx in (1, 2):
                 continue
             name = self.keypoint_names.get(idx, f"P_{idx}")
             keypoints[idx] = KeypointData(
