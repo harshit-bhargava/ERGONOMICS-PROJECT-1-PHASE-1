@@ -13,6 +13,16 @@ Point = Tuple[float, float]
 
 class MediaPipeHandTracker:
     def __init__(self) -> None:
+        if not hasattr(mp, "solutions") or not hasattr(mp.solutions, "hands"):
+            installed_version = getattr(mp, "__version__", "unknown")
+            raise RuntimeError(
+                "Incompatible MediaPipe installation: this application requires "
+                "mediapipe==0.10.21, which provides mp.solutions.hands. "
+                f"Found MediaPipe {installed_version}. Activate the project's "
+                "Python 3.12 environment and run "
+                "python -m pip install -r requirements.txt."
+            )
+
         self._hands = mp.solutions.hands.Hands(
             static_image_mode=False,
             max_num_hands=2,

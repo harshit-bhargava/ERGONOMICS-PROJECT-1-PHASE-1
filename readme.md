@@ -11,6 +11,8 @@ This application analyzes live camera footage or an uploaded video. It estimates
 
 The YOLO pose model file, `yolov8n-pose.pt`, is included in this repository. The generated `snapshots/` folder contains captured images and reports and is excluded from Git.
 
+MediaPipe is pinned to `0.10.21` in `requirements.txt` because the hand tracker uses that release's `mp.solutions.hands` API. Install with the requirements file rather than installing an unpinned `mediapipe` package separately. The app reports a clear setup message if it detects an incompatible MediaPipe release.
+
 ## Windows setup
 
 Open **Command Prompt** and run:
