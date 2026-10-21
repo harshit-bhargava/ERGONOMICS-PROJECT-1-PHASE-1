@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import subprocess
+import sys
 import webbrowser
 
 import cv2
@@ -16,8 +17,57 @@ from pose.hand_estimator import MediaPipeHandTracker
 from pose.pose_estimator import YOLOSkeletonEstimator
 
 
+def choose_video_file() -> str | None:
+    """Open the native video picker for the current operating system."""
+    if sys.platform == "darwin":
+        picker_script = (
+            'POSIX path of (choose file with prompt '
+            '"Select a video to analyze" of type {"public.movie"})'
+        )
+        try:
+            result = subprocess.run(
+                ["osascript", "-e", picker_script],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except FileNotFoundError:
+            print("[ERROR] macOS osascript was not found.")
+            return None
+
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+        return None
+
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+
+        root = tk.Tk()
+        root.withdraw()
+        try:
+            root.attributes("-topmost", True)
+            selected_path = filedialog.askopenfilename(
+                parent=root,
+                title="Select a video to analyze",
+                filetypes=(
+                    (
+                        "Video files",
+                        "*.mp4 *.mov *.avi *.mkv *.m4v *.wmv *.mpeg *.mpg",
+                    ),
+                    ("All files", "*.*"),
+                ),
+            )
+        finally:
+            root.destroy()
+        return selected_path or None
+    except Exception as error:
+        print(f"[ERROR] Could not open the video picker: {error}")
+        return None
+
+
 def choose_input_mode() -> tuple[str | None, str | None]:
-    """Show clickable source buttons and a native macOS video picker."""
+    """Show clickable source buttons and the platform's video file picker."""
     window_name = "Ergonomics Analysis - Choose Source"
     canvas = np.full((360, 900, 3), 245, dtype=np.uint8)
     selection = {"mode": None, "video_path": None, "open_picker": False}
@@ -86,24 +136,10 @@ def choose_input_mode() -> tuple[str | None, str | None]:
 
             if selection["open_picker"]:
                 selection["open_picker"] = False
-                picker_script = (
-                    'POSIX path of (choose file with prompt '
-                    '"Select a video to analyze" of type {"public.movie"})'
-                )
-                try:
-                    result = subprocess.run(
-                        ["osascript", "-e", picker_script],
-                        capture_output=True,
-                        text=True,
-                        check=False,
-                    )
-                except FileNotFoundError:
-                    print("[ERROR] macOS osascript was not found.")
-                    continue
-
-                if result.returncode == 0 and result.stdout.strip():
+                selected_path = choose_video_file()
+                if selected_path:
                     selection["mode"] = "video"
-                    selection["video_path"] = result.stdout.strip()
+                    selection["video_path"] = selected_path
                 # Canceling the picker leaves the two source buttons available.
 
     finally:
