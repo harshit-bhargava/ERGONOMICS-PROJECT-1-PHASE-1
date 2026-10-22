@@ -397,7 +397,6 @@ class ReportGenerator:
         """
         assessment_form = f"""<section class="section rula-section">
     <h2>RULA assessment</h2>
-    <p class="note">Choose one sample, assessed side, and camera view. The trunk category is estimated automatically only for a side-on view; confirm the estimate against the posture. Other categories are prefilled when angle data is available.</p>
     <details>
       <summary>Enter assessment details</summary>
       <form id="rula-form">
@@ -419,7 +418,6 @@ class ReportGenerator:
         <h3>Posture categories</h3>
         <div class="form-grid">{category_fields}</div>
         <h3>Posture adjustments</h3>
-        <p class="note">Review each group; check every condition that applies. An unchecked condition is treated as absent.</p>
         <div class="modifier-grid">{modifier_fields}</div>
         <h3>Muscle use and force/load</h3>
         <div class="form-grid">
@@ -801,7 +799,6 @@ downloadButton.addEventListener("click", () => {
         <tbody>{''.join(rows)}</tbody>
       </table>
     </div>
-    <p class="note">Angles are measurements from the pose pipeline, not RULA posture scores. Select one sample and complete the slide-based assessment below to calculate its RULA score, action level, and recommended action.</p>
   </section>
   {assessment_form}
   <footer>Generated {created_at.strftime('%Y-%m-%d %H:%M:%S')} · Detailed source data remains available in the JSON reports beside this page.</footer>
